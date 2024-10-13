@@ -8,9 +8,9 @@ router.post('/',async(req,res)=>{
        const data=req.body;
        const response=await User(data);
        const savedrespnse=await response.save();
-      console.log("data sended successfully");
+       console.log("data sended successfully");
   
-      res.status(200).json(savedrespnse);
+       res.status(200).json(data);
       
   } catch (error) {
      res.status(500).send({message:"internal server error"});

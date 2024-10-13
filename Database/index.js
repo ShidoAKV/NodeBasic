@@ -4,6 +4,9 @@ import db from './MongoDB/index.js'
 import User from './Models/person.js';
 import bodyParser from 'body-parser';
 import MenuItem from './Models/Menu.js';
+import { configDotenv } from 'dotenv';
+configDotenv();
+
 const app = express();
 
 // middleware
@@ -111,7 +114,7 @@ app.use('/person', router);
 
 
 
-
-app.listen(5000, () => {
+const PORT=process.env.PORT||3000
+app.listen(PORT, () => {
   console.log("Server running on port 5000");
 });
