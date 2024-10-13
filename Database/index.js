@@ -7,6 +7,7 @@ import MenuItem from './Models/Menu.js';
 import { configDotenv } from 'dotenv';
 configDotenv();
 
+const PORT=process.env.PORT||5000
 const app = express();
 
 // middleware
@@ -76,17 +77,17 @@ const app = express();
 // )
 
 
-// app.get('/getmenu',async(req,res)=>{
-//    try {
-//      const data=await MenuItem.find();
-//      res.status(200).json(data)
-//    } catch (error) {
-//     console.log("Internel server error");
-//     res.status(500).send({error})
+app.get('/getmenu',async(req,res)=>{
+   try {
+     const data=await MenuItem.find();
+     res.status(200).json(data)
+   } catch (error) {
+    console.log("Internel server error");
+    res.status(500).send({error})
     
-//    }
+   }
 
-// })
+})
 
 // parametrised Api call
 // app.get('/person/:worktype',async(req,res)=>{
@@ -114,7 +115,7 @@ app.use('/person', router);
 
 
 
-const PORT=process.env.PORT||3000
+
 app.listen(PORT, () => {
   console.log("Server running on port 5000");
 });
