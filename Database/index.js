@@ -4,21 +4,38 @@ import db from './MongoDB/index.js'
 import User from './Models/person.js';
 import bodyParser from 'body-parser';
 import MenuItem from './Models/Menu.js';
-import { configDotenv } from 'dotenv';
-configDotenv();
+import dotenv from 'dotenv';
+import router from './Routes/person_routes.js';
+import passport from './Auth.js'
 
-const PORT=process.env.PORT||5000
+dotenv.config();
+
+
+const PORT=process.env.PORT||5000;
 const app = express();
+app.use(bodyParser.json());
+ 
+// middleware function
+const logRequest=(req,res,next)=>{
+  console.log(`[${new Date().toLocaleString()} ] Request mode to :${req.originalUrl}`);
+  next();
+}
 
-// middleware
-// app.use(bodyParser.json());
 
-// app.get('/', (req, res) => {
-//   res.send("Hello");
-// });
-// app.get('/about', (req, res) => {
-//   res.send("About");
-// });
+app.use(logRequest);
+  
+app.use(passport.initialize());
+
+const localauthmiddlleware=passport.authenticate('local',{session:false});
+
+app.get('/',function(req, res){
+  res.send("welcome to hotel");
+});
+
+
+app.get('/about', (req, res) => {
+  res.send("About");
+});
 
 // app.post('/person', async (req, res) => {
 
@@ -45,36 +62,36 @@ const app = express();
 //   }
 // });
 
-// app.get('/revive',async (req,res)=>{
-//     try {
-//        const data=await User.find();
-//        console.log("data retrieve successfully");
-//        res.status(200).json(data)
+app.get('/revive',async (req,res)=>{
+    try {
+       const data=await User.find();
+       console.log("data retrieve successfully");
+       res.status(200).json(data)
        
-//     } catch (error) {
-//       console.log("internel server error");
-//       res.status(500).send("Internal server error",error)
-//     }
-// })
+    } catch (error) {
+      console.log("internel server error");
+      res.status(500).send("Internal server error",error)
+    }
+})
 
 
-// app.post('/menu',async( req,res)=>{
+ app.post('/menu',async( req,res)=>{
       
-//  try {
-//    const Menudata=req.body;
-//    const MenuItemdata=await MenuItem(Menudata);
-//    const savedMenudata=await MenuItemdata.save();
-//    console.log("data saved successfully");
-//    res.status(200).json(savedMenudata);
+ try {
+   const Menudata=req.body;
+   const MenuItemdata=await MenuItem(Menudata);
+   const savedMenudata=await MenuItemdata.save();
+   console.log("data saved successfully");
+   res.status(200).json(savedMenudata);
    
-//  } catch (error) {
-//    console.log("Internel Server error");
-//     res.status(500).send(error)
+ } catch (error) {
+   console.log("Internel Server error");
+    res.status(500).send(error)
    
-//  }
-// }
+ }
+}
 
-// )
+)
 
 
 app.get('/getmenu',async(req,res)=>{
@@ -108,7 +125,7 @@ app.get('/getmenu',async(req,res)=>{
 //   }
 // })
 
- import router from './Routes/person_routes.js';
+//  app.use(express.urlencoded({ extended: true }));
 app.use('/person', router);
 
 

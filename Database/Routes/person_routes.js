@@ -1,16 +1,23 @@
 import express from 'express';
 import User from '../Models/person.js'; 
-
+import {jwtAuthMiddleware,generateToken} from '../jwt.js';
 const router = express.Router();
 
-router.post('/',async(req,res)=>{
+router.post('/signup',async(req,res)=>{
   try {
        const data=req.body;
        const response=await User(data);
-       const savedrespnse=await response.save();
+       const savedresponse=await response.save();
        console.log("data sended successfully");
-  
-       res.status(200).json(data);
+
+       const payload={
+         id:savedresponse.id,
+         username:savedresponse.username
+       }
+        const token=generateToken(payload);
+        console.log("token was ",token);
+        
+       res.status(200).json({response:savedresponse,token:token});
       
   } catch (error) {
      res.status(500).send({message:"internal server error"});
@@ -18,6 +25,48 @@ router.post('/',async(req,res)=>{
    
 
 })
+// login route
+
+router.post('/login',async(req,res)=>{
+  try {
+    // extract username and password from req body
+    // send username ,password by post method then it return token if all set
+     const {username,password}=req.body;
+     const user=await User.findOne({username:username});
+     if(!user||!await user.comparePassword(password)){
+         return res.status(401).json({error:"invalid username or password"})
+     }
+
+     // generate token
+     const payload={
+      id:user.id,
+      username:user.username
+     }
+     const token=generateToken(payload);
+
+     // return token as response
+
+     return res.status(200).json({token:token});
+
+  } catch (error) {
+    return res.status(500).send({message:"internal server error"});
+  }
+})
+router.get('/profile',jwtAuthMiddleware,async(req,res)=>{
+  try { 
+    const userdata=req.user;
+    console.log("userdata is",userdata);
+     const userId=userdata.id;
+
+     const user=await User.findById(userId);
+     res.status(200).json(user);
+
+    
+  } catch (error) {
+    return res.status(500).send({message:"internal server error"});
+  }
+})
+
 
 router.get('/',async(req,res)=>{
   try {
@@ -100,9 +149,4 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-
-
-
-
-
-export default router;
+export default router;    
